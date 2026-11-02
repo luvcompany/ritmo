@@ -1,0 +1,13 @@
+{
+  "name": "Ritmo do Ícaro",
+  "short_name": "Ritmo",
+  "lang": "pt-BR",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#EDF0EA",
+  "theme_color": "#0E6B59",
+  "icons": [
+    {"src": "icone.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable"}
+  ]
+}

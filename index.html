@@ -7,6 +7,9 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Ritmo">
+<meta name="theme-color" content="#0E6B59">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icone.png">
 <title>Ritmo do Ícaro</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Figtree:wght@400;500;600;700&display=swap">
@@ -598,6 +601,7 @@ function modoLocal(){
 S.ultimo=hoje();
 modoLocal();
 navigator.storage?.persist?.().catch(()=>{});
+navigator.serviceWorker?.register("sw.js").catch(()=>{});
 </script>
 </body>
 </html>
