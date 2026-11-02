@@ -118,8 +118,29 @@ p{margin:0}
 .chips button.on{background:var(--acc);color:var(--acc-fg)}
 .edit{display:flex;flex-direction:column;gap:7px;padding:12px;background:var(--sup);border-radius:10px}
 nav{position:fixed;left:0;right:0;bottom:0;z-index:5;background:var(--sup);border-top:1px solid var(--linha);padding:6px max(10px,env(safe-area-inset-right,0px)) calc(6px + env(safe-area-inset-bottom,0px)) max(10px,env(safe-area-inset-left,0px))}
-nav div{max-width:560px;margin:0 auto;display:grid;grid-template-columns:repeat(5,1fr);gap:3px}
-nav button{height:46px;border-radius:8px;font-size:13px;font-weight:600;color:var(--fg2)}
+.tabs{display:flex;flex-wrap:wrap;gap:6px}
+.tabs button{min-height:42px;padding:7px 12px;border-radius:8px;background:var(--sup2);font-weight:600;font-size:14px}
+.tabs button.on{background:var(--acc);color:var(--acc-fg)}
+.tabs button small{font-weight:500;font-size:12px;opacity:.75;font-variant-numeric:tabular-nums}
+.tabs.dias{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.tabs.dias button{padding:6px 0;font-size:13px;line-height:1.2}
+.tabs.dias button small{display:block}
+.bloco{display:flex;flex-direction:column;gap:6px;padding:12px;background:var(--sup);border-radius:10px}
+.bloco.hj{box-shadow:inset 0 0 0 1.5px var(--acc)}
+.bloco h3{margin:0;font-size:15px;font-weight:700;display:flex;justify-content:space-between;gap:8px}
+.bloco h3 span{font-weight:500;font-size:13px;color:var(--fg3);font-variant-numeric:tabular-nums}
+.itens{display:flex;flex-direction:column;gap:2px}
+.it{display:grid;grid-template-columns:32px minmax(0,1fr) 34px;align-items:start;gap:4px}
+.ck{width:28px;height:28px;margin-top:3px;border-radius:7px;box-shadow:inset 0 0 0 1.5px var(--linha);background:var(--bg);font-size:15px;font-weight:700;line-height:1}
+.it.ok .ck{background:var(--acc);color:var(--acc-fg);box-shadow:none}
+.it.ok .txt,.it.ok .fixo{text-decoration:line-through;color:var(--fg3)}
+.it .txt{min-height:0;border:0;background:none;padding:6px 2px;resize:none;overflow:hidden;line-height:1.3}
+.it .fixo{padding:6px 2px;line-height:1.3;overflow-wrap:anywhere}
+.rm{width:34px;height:34px;font-size:18px;color:var(--fg3);border-radius:7px}
+.novo.novo{border:0;border-bottom:1px dashed var(--linha);border-radius:0;background:none;padding:9px 2px}
+.lk{align-self:flex-start;min-height:34px;padding:4px 0;font-size:13px;font-weight:600;color:var(--acc)}
+nav div{max-width:560px;margin:0 auto;display:grid;grid-template-columns:repeat(6,1fr);gap:2px}
+nav button{height:46px;padding:0;border-radius:8px;font-size:12.5px;font-weight:600;color:var(--fg2)}
 nav button.on{background:var(--sup2);color:var(--fg)}
 @media (prefers-reduced-motion:no-preference){.op,.escala button,.dia i u{transition:background-color .12s}}
 </style>
@@ -145,14 +166,21 @@ const PADRAO=/*CFG*/{
     A:["Agachamento com halter | 3x10","Supino com halteres | 3x10","Remada baixa | 3x10","Elevação pélvica | 3x12","Prancha | 3x30s"],
     B:["Leg press | 3x12","Puxada alta | 3x10","Desenvolvimento com halteres | 3x10","Mesa flexora | 3x12","Rosca direta | 3x12"]
   },
-  frentes:[]
+  frentes:[],
+  categorias:[
+    {id:"estudos",nome:"Estudos",ph:"O que vai estudar"},
+    {id:"alimentacao",nome:"Alimentação",ph:"Refeição ou lista de compras"},
+    {id:"treinos",nome:"Treinos",ph:"Treino do dia"},
+    {id:"devocional",nome:"Devocional",ph:"Leitura, oração ou reflexão"},
+    {id:"conteudo",nome:"Criação de conteúdo",ph:"Roteiro, gravação ou postagem"}
+  ]
 }/*FIM*/;
 
 const PILARES=["Corpo","Mente","Foco","Alma"];
 const SEM=["Domingo","Segunda","Terça","Quarta","Quinta","Sexta","Sábado"];
 const LETRA=["D","S","T","Q","Q","S","S"];
 const MES=["janeiro","fevereiro","março","abril","maio","junho","julho","agosto","setembro","outubro","novembro","dezembro"];
-const ABAS=[["hoje","Hoje"],["corpo","Corpo"],["foco","Foco"],["evolucao","Evolução"],["ajustes","Ajustes"]];
+const ABAS=[["hoje","Hoje"],["semana","Semana"],["corpo","Corpo"],["foco","Foco"],["evolucao","Evolução"],["ajustes","Ajustes"]];
 
 const pad=n=>String(n).padStart(2,"0");
 const iso=d=>d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate());
@@ -166,7 +194,7 @@ const hm=m=>m<60?m+" min":Math.floor(m/60)+"h"+(m%60?pad(m%60):"");
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const clone=o=>JSON.parse(JSON.stringify(o));
 
-const S={cfg:clone(PADRAO),dias:{},semanas:{},aba:"hoje",data:hoje(),sel:null,confirma:null,cap:"",modo:"carregando",treino:null};
+const S={cfg:clone(PADRAO),dias:{},semanas:{},planos:{},semana:segunda(hoje()),vista:"area",catSel:null,diaSel:(parse(hoje()).getDay()+6)%7,editAbas:false,aba:"hoje",data:hoje(),sel:null,confirma:null,cap:"",modo:"carregando",treino:null};
 if(ABAS.some(a=>a[0]===location.hash.slice(1)))S.aba=location.hash.slice(1);
 
 /* ---------- Salvamento ---------- */
@@ -290,6 +318,7 @@ function tHoje(){
   ${ontemFalhou?`<p class="aviso">Ontem ficou para trás, e tudo bem. A regra é nunca falhar dois dias seguidos: hoje, o mínimo já salva.</p>`:""}
   <div class="campo"><label for="prio">A única coisa que faz este dia valer</label><input id="prio" data-dia="prioridade" value="${esc(o.prioridade)}" placeholder="Escreva uma tarefa, não uma lista"></div>
   ${grupos}
+  ${planoHoje()}
   <section class="secao"><div class="rot">Como você está</div>
     ${nota("energia","Disposição, de 1 a 5")}${nota("humor","Cabeça e humor, de 1 a 5")}
     ${dt.getDay()===1?`<div class="campo"><label for="pesoh">Peso de segunda, em kg</label><input id="pesoh" inputmode="decimal" data-dia="peso" value="${o.peso??""}" placeholder="Em jejum, ao acordar"></div>`:""}
@@ -371,6 +400,7 @@ function tEvolucao(){
   <section class="secao"><h2>Disposição</h2>${linha({...opts,id:"Disposição nos últimos 30 dias",pts:serie("energia"),vazio:"Marque sua disposição na tela Hoje e a linha aparece aqui."})}</section>
   <section class="secao"><h2>Cabeça e humor</h2>${linha({...opts,id:"Humor nos últimos 30 dias",pts:serie("humor"),vazio:"Marque seu humor na tela Hoje e a linha aparece aqui."})}</section>
   <section class="secao"><h2>Horas de foco por semana</h2><div class="colunas">${colunas}</div><p class="aux">Soma de projetos e estudos, registrada na tela Foco.</p></section>
+  <section class="secao"><h2>Plano desta semana</h2><div class="barras">${cats().map(c=>{const[f,t]=contagem(seg,(i,id)=>id===c.id);return `<div class="barra"><span>${esc(c.nome)}</span><em>${f}/${t}</em><i><u style="width:${t?f/t*100:0}%"></u></i></div>`}).join("")}</div></section>
   <section class="secao"><h2>Revisão da semana</h2><p class="aux">Dez minutos no domingo. Semana de ${curta(seg)}.</p>
     ${pr("funcionou","O que funcionou?","O que repetir")}${pr("travou","O que travou?","O que atrapalhou e por quê")}${pr("foco","Qual é o foco da próxima semana?","Uma coisa só")}</section>`;
 }
@@ -394,11 +424,68 @@ function tAjustes(){
   <section class="secao"><h2>Treinos</h2><p class="aux">Um exercício por linha, no formato nome | séries.</p>
     ${["A","B"].map(t=>`<div class="campo"><label for="t${t}">Treino ${t}</label><textarea id="t${t}" rows="6" data-tr="${t}">${esc((c.treinos[t]||[]).join("\n"))}</textarea></div>`).join("")}</section>`;
 }
+/* ---------- Planejamento da semana ---------- */
+function cats(){return S.cfg.categorias}
+const lerLista=(seg,i,c)=>S.planos[seg]?.dias?.[i]?.[c]||[];
+function garanteLista(seg,i,c){
+  const p=S.planos[seg]||(S.planos[seg]={dias:{}}),d=p.dias[i]||(p.dias[i]={});
+  return d[c]||(d[c]=[]);
+}
+const salvaPlano=seg=>salvar("plano/"+seg,S.planos[seg]);
+function contagem(seg,filtro){
+  let f=0,t=0;
+  for(let i=0;i<7;i++)for(const c of cats())if(filtro(i,c.id))for(const x of lerLista(seg,i,c.id)){t++;if(x.ok)f++}
+  return[f,t];
+}
+const chave=k=>{const[seg,i,c]=k.split(".");return[seg,+i,c]};
+function adicionar(k,t){const[seg,i,c]=chave(k);garanteLista(seg,i,c).push({t,ok:false});salvaPlano(seg)}
+function tamanho(e){e.style.height="auto";e.style.height=e.scrollHeight+"px"}
+function blocoLista(seg,i,c){
+  const l=lerLista(seg,i,c.id),k=`${seg}.${i}.${c.id}`;
+  return `<div class="itens">${l.map((x,n)=>`<div class="it ${x.ok?"ok":""}">
+    <button class="ck" data-a="chk" data-v="${k}" data-n="${n}" aria-pressed="${!!x.ok}" aria-label="Marcar como feito">${x.ok?"✓":""}</button>
+    <textarea class="txt" rows="1" id="it-${k}-${n}" data-item="${k}" data-n="${n}" aria-label="Editar item">${esc(x.t)}</textarea>
+    <button class="rm" data-a="irm" data-v="${k}" data-n="${n}" aria-label="Apagar item">×</button></div>`).join("")}
+    <input class="novo" id="novo-${k}" data-novo="${k}" enterkeyhint="done" placeholder="+ ${esc(c.ph||"Adicionar item")}" aria-label="Adicionar em ${esc(c.nome)}">
+    ${l.length?`<button class="lk" data-a="rep" data-v="${k}">Repetir nos dias vazios</button>`:""}</div>`;
+}
+function tSemana(){
+  const seg=S.semana,h=hoje(),lista=cats();
+  if(!lista.some(c=>c.id===S.catSel))S.catSel=lista[0]?.id;
+  const c=lista.find(x=>x.id===S.catSel),[f,t]=contagem(seg,()=>true);
+  const nomeDia=i=>SEM[(i+1)%7]+" "+curta(soma(seg,i));
+  const conta=l=>l.length?`${l.filter(x=>x.ok).length}/${l.length}`:"";
+  let corpo;
+  if(S.vista==="area"){
+    const tabs=lista.map(x=>{const[a,b]=contagem(seg,(i,id)=>id===x.id);return `<button class="${x.id===S.catSel?"on":""}" data-a="cat" data-v="${esc(x.id)}">${esc(x.nome)}${b?` <small>${a}/${b}</small>`:""}</button>`}).join("");
+    corpo=`<div class="tabs">${tabs}</div>`+(c?[...Array(7)].map((_,i)=>`<div class="bloco ${soma(seg,i)===h?"hj":""}"><h3>${nomeDia(i)}<span>${soma(seg,i)===h?"hoje":conta(lerLista(seg,i,c.id))}</span></h3>${blocoLista(seg,i,c)}</div>`).join(""):"");
+  }else{
+    const tabs=[...Array(7)].map((_,i)=>{const[a,b]=contagem(seg,j=>j===i);return `<button class="${i===S.diaSel?"on":""}" data-a="dsel" data-v="${i}" aria-label="${nomeDia(i)}">${SEM[(i+1)%7].slice(0,3)}<small>${soma(seg,i).slice(8)}</small></button>`}).join("");
+    corpo=`<div class="tabs dias">${tabs}</div><h2>${nomeDia(S.diaSel)}</h2>`+lista.map(x=>`<div class="bloco"><h3>${esc(x.nome)}<span>${conta(lerLista(seg,S.diaSel,x.id))}</span></h3>${blocoLista(seg,S.diaSel,x)}</div>`).join("");
+  }
+  const edita=!S.editAbas?"":`<div class="edit">${lista.map((x,n)=>`<div class="lin"><input id="ab${n}" data-aba="${n}" value="${esc(x.nome)}" aria-label="Nome da aba"><button class="btn seg mini" data-a="crm" data-v="${esc(x.id)}" ${lista.length<2?"disabled":""}>${S.confirma===x.id?"Confirmar remoção":"Remover"}</button></div>`).join("")}
+    <div class="lin"><input id="nab" placeholder="Nome da nova aba" aria-label="Nova aba"><button class="btn mini" data-a="cadd">Adicionar aba</button></div>
+    <p class="aux">Remover uma aba esconde tudo o que está planejado nela.</p></div>`;
+  return `<header class="topo"><div><div class="rot">Semana</div><h1>Planeje sua semana</h1><div id="st"></div></div>
+    <div class="nav-dia"><button data-a="sem" data-v="-7" aria-label="Semana anterior">‹</button><button data-a="sem" data-v="7" aria-label="Próxima semana">›</button></div></header>
+  <section class="secao"><div class="topo"><strong class="num">${curta(seg)} a ${curta(soma(seg,6))}</strong><span class="aux num">${t?`${f} de ${t} feitos`:"Nada planejado"}</span></div>
+    <div class="abas"><button class="${S.vista==="area"?"on":""}" data-a="vis" data-v="area">Por área</button><button class="${S.vista==="dia"?"on":""}" data-a="vis" data-v="dia">Por dia</button></div></section>
+  <section class="secao">${corpo}</section>
+  <section class="secao"><div class="lin"><button class="btn seg mini" data-a="copiar">${S.confirma==="copiar"?"Confirmar: trocar pelo plano da semana anterior":"Copiar semana anterior"}</button><button class="btn seg mini" data-a="eab">${S.editAbas?"Fechar edição":"Editar abas"}</button></div>${edita}</section>`;
+}
+function planoHoje(){
+  const seg=segunda(S.data),i=(parse(S.data).getDay()+6)%7;
+  const g=cats().map(c=>{
+    const l=lerLista(seg,i,c.id),k=`${seg}.${i}.${c.id}`;
+    return l.length?`<div class="bloco"><h3>${esc(c.nome)}</h3><div class="itens">${l.map((x,n)=>`<div class="it ${x.ok?"ok":""}"><button class="ck" data-a="chk" data-v="${k}" data-n="${n}" aria-pressed="${!!x.ok}" aria-label="Marcar como feito">${x.ok?"✓":""}</button><div class="fixo">${esc(x.t)}</div></div>`).join("")}</div></div>`:""}).join("");
+  return `<section class="secao"><div class="rot">Plano do dia</div>${g||`<p class="aux">Nada planejado para este dia.</p>`}<button class="lk" data-a="plan">Abrir o planejamento da semana</button></section>`;
+}
 function render(){
   S.data=S.data>hoje()?hoje():S.data;
-  document.getElementById("app").innerHTML={hoje:tHoje,corpo:tCorpo,foco:tFoco,evolucao:tEvolucao,ajustes:tAjustes}[S.aba]();
+  document.getElementById("app").innerHTML={hoje:tHoje,semana:tSemana,corpo:tCorpo,foco:tFoco,evolucao:tEvolucao,ajustes:tAjustes}[S.aba]();
   document.getElementById("nav").innerHTML=ABAS.map(([k,n])=>`<button class="${k===S.aba?"on":""}" data-a="aba" data-v="${k}" ${k===S.aba?'aria-current="page"':""}>${n}</button>`).join("");
   ativarGraficos();
+  document.querySelectorAll(".txt").forEach(tamanho);
 }
 const digitando=()=>/^(INPUT|TEXTAREA)$/.test(document.activeElement?.tagName||"");
 
@@ -411,7 +498,7 @@ function marcarPorTempo(id,tipo){
   const o=dia();o.h=o.h||{};const v=t>=lc?2:t>=lm?1:0;
   if(v>(o.h[hid]||0))o.h[hid]=v;
 }
-const COPIA=/^(config\/geral|dias\/\d{4}-\d{2}-\d{2}|semanas\/\d{4}-\d{2}-\d{2})$/;
+const COPIA=/^(config\/geral|(dias|semanas|plano)\/\d{4}-\d{2}-\d{2})$/;
 function restaurar(arq){
   const r=new FileReader();
   r.onload=()=>{
@@ -424,6 +511,29 @@ function restaurar(arq){
   r.readAsText(arq);
 }
 const ACOES={
+  plan(){S.semana=segunda(S.data);S.diaSel=(parse(S.data).getDay()+6)%7;S.vista="dia";S.aba="semana";location.hash="semana";render();scrollTo(0,0)},
+  sem(e){S.semana=soma(S.semana,+e.dataset.v);S.confirma=null;render()},
+  vis(e){S.vista=e.dataset.v;render()},
+  cat(e){S.catSel=e.dataset.v;render()},
+  dsel(e){S.diaSel=+e.dataset.v;render()},
+  eab(){S.editAbas=!S.editAbas;S.confirma=null;render()},
+  chk(e){const[seg,i,c]=chave(e.dataset.v),x=garanteLista(seg,i,c)[+e.dataset.n];x.ok=!x.ok;salvaPlano(seg);render()},
+  irm(e){const[seg,i,c]=chave(e.dataset.v);garanteLista(seg,i,c).splice(+e.dataset.n,1);salvaPlano(seg);render()},
+  rep(e){
+    const[seg,i,c]=chave(e.dataset.v),l=lerLista(seg,i,c);let n=0;
+    for(let j=0;j<7;j++)if(j!==i&&!lerLista(seg,j,c).length){garanteLista(seg,j,c).push(...l.map(x=>({t:x.t,ok:false})));n++}
+    salvaPlano(seg);render();status(n?"Repetido em "+n+(n>1?" dias":" dia"):"Os outros dias já têm itens");
+  },
+  copiar(){
+    const seg=S.semana,ant=S.planos[soma(seg,-7)];
+    if(!ant||!Object.keys(ant.dias||{}).length)return status("A semana anterior está vazia.");
+    if(contagem(seg,()=>true)[1]&&S.confirma!=="copiar"){S.confirma="copiar";return render()}
+    const novo=clone(ant);
+    Object.values(novo.dias).forEach(d=>Object.values(d).forEach(l=>l.forEach(x=>{x.ok=false})));
+    S.planos[seg]=novo;S.confirma=null;salvaPlano(seg);render();status("Semana copiada");
+  },
+  cadd(){const i=document.getElementById("nab"),n=i.value.trim();if(!n)return i.focus();S.cfg.categorias.push({id:"c"+Date.now(),nome:n});S.catSel=S.cfg.categorias.at(-1).id;salvaCfg();render()},
+  crm(e){const id=e.dataset.v;if(S.confirma!==id){S.confirma=id;return render()}S.cfg.categorias=S.cfg.categorias.filter(c=>c.id!==id);S.confirma=null;salvaCfg();render()},
   async baixar(){
     await Promise.all(Object.keys(fila).map(flush));
     const a=document.createElement("a");
@@ -445,10 +555,26 @@ const ACOES={
   ha(){const i=document.getElementById("nh"),n=i.value.trim();if(!n)return i.focus();S.cfg.habitos.push({id:"h"+Date.now(),pilar:"Mente",nome:n,full:"Completo",min:"Versão de 2 minutos",dias:[0,1,2,3,4,5,6]});salvaCfg();render()}
 };
 document.addEventListener("click",e=>{const b=e.target.closest("[data-a]");if(b&&!b.disabled)ACOES[b.dataset.a](b)});
+document.addEventListener("keydown",e=>{
+  const t=e.target;
+  if(e.key!=="Enter")return;
+  if(t.dataset.item){e.preventDefault();document.getElementById("novo-"+t.dataset.item)?.focus()}
+  else if(t.dataset.novo&&t.value.trim()){
+    e.preventDefault();const k=t.dataset.novo,v=t.value.trim();t.value="";adicionar(k,v);render();
+    document.getElementById("novo-"+k)?.focus();
+  }
+});
+document.addEventListener("focusout",e=>{
+  const t=e.target;
+  if(t.dataset?.novo&&t.value.trim()){const k=t.dataset.novo,v=t.value.trim();t.value="";adicionar(k,v);setTimeout(render,0)}
+  if(t.dataset?.aba&&document.getElementById("app").contains(t))setTimeout(()=>{if(!digitando())render()},0);
+});
 const numero=v=>{const n=parseFloat(String(v).replace(",","."));return isNaN(n)?null:n};
 document.addEventListener("input",e=>{
   const t=e.target,ds=t.dataset;
   if(t.id==="restaurar"){if(t.files[0])restaurar(t.files[0]);return}
+  if(ds.item){const[seg,i,c]=chave(ds.item);garanteLista(seg,i,c)[+ds.n].t=t.value;tamanho(t);salvaPlano(seg);return}
+  if(ds.aba){S.cfg.categorias[+ds.aba].nome=t.value;salvaCfg();return}
   if(ds.dia){const o=dia();if(ds.dia==="peso"){const n=numero(t.value);if(n===null)delete o.peso;else o.peso=n}else o[ds.dia]=t.value;salvaDia()}
   else if(ds.carga){const o=dia();o.cargas=o.cargas||{};if(t.value.trim())o.cargas[ds.carga]=t.value.trim();else delete o.cargas[ds.carga];salvaDia()}
   else if(ds.sem){const s=segunda(hoje()),r=S.semanas[s]||(S.semanas[s]={});r[ds.sem]=t.value;salvar("semanas/"+s,r)}
@@ -466,7 +592,7 @@ window.addEventListener("hashchange",()=>{const a=location.hash.slice(1);if(a!==
 /* ---------- Início ---------- */
 function modoLocal(){
   S.modo="local";const t=lerLocal();
-  for(const[p,o]of Object.entries(t)){const[c,id]=p.split("/");if(c==="config")S.cfg={...S.cfg,...o};if(c==="dias")S.dias[id]=o;if(c==="semanas")S.semanas[id]=o}
+  for(const[p,o]of Object.entries(t)){const[c,id]=p.split("/");if(c==="config")S.cfg={...S.cfg,...o};if(c==="dias")S.dias[id]=o;if(c==="semanas")S.semanas[id]=o;if(c==="plano")S.planos[id]=o}
   render();
 }
 S.ultimo=hoje();
